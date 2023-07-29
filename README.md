@@ -1,2 +1,2 @@
-# maxi-crystal
-Big transparent magnifier
+# qmagnifier
+Magnifier written with Qt
