@@ -1,4 +1,6 @@
 #include "SliderWithTextBox.h"
+#include <cmath>
+#include "SliderWithTextBox.h"
 
 SliderWithTextBox::SliderWithTextBox(QWidget *parent)
 : QWidget(parent), slider(new QSlider(Qt::Vertical)), lineEdit(new QLineEdit)
@@ -21,4 +23,8 @@ void SliderWithTextBox::updateLineEdit(int value) {
     int newValue = int(value*value/50.0);
     lineEdit->setText(QString::number(newValue));
     emit valueChanged(newValue);
+}
+
+void SliderWithTextBox::setValue(int val) {
+    slider->setValue((int)((round(sqrt(val*50.0)))));
 }

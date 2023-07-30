@@ -10,9 +10,9 @@
 
 class SliderWithTextBox : public QWidget {
 Q_OBJECT
-
 public:
     SliderWithTextBox(QWidget *parent = nullptr);
+    void setValue(int val);
 
 public slots:
     void updateLineEdit(int value);

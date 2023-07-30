@@ -39,6 +39,7 @@ public:
         auto *layout = new QHBoxLayout;
         magnifier = new Magnifier(this);
         auto *sliderText = new SliderWithTextBox(this);
+        sliderText->setValue((int)scale);
         connect(sliderText, &SliderWithTextBox::valueChanged, this, [this](int value) {
             scale = value;
             grab(globalPos);
