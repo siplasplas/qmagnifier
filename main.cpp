@@ -1,5 +1,6 @@
 #include <QApplication>
 #include <QScreen>
+#include <QDebug>
 #include <QDesktopWidget>
 #include <QMouseEvent>
 #include <QLabel>
@@ -27,6 +28,7 @@ class MainWindow : public QMainWindow {
 Q_OBJECT
     Magnifier *magnifier;
     float scale = 8;
+    QPoint globalPos;
 protected:
     void mouseMoveEvent(QMouseEvent* event) override;
 public:
@@ -37,6 +39,12 @@ public:
         auto *layout = new QHBoxLayout;
         magnifier = new Magnifier(this);
         auto *sliderText = new SliderWithTextBox(this);
+        connect(sliderText, &SliderWithTextBox::valueChanged, this, [this](int value) {
+            scale = value;
+            grab(globalPos);
+        });
+
+
         layout->addWidget(magnifier);
         layout->addWidget(sliderText);
         layout->setStretchFactor(magnifier, 1);
@@ -50,6 +58,8 @@ public:
         exitAction->setShortcuts(QKeySequence::Quit);
         statusBar()->showMessage(tr("Ready"));
     }
+
+    void grab(QPoint globalPos);
 };
 
 void Magnifier::mouseMoveEvent(QMouseEvent* event) {
@@ -69,15 +79,15 @@ void Magnifier::mouseMoveEvent(QMouseEvent* event) {
     QLabel::mouseMoveEvent(event);
 }
 
-void MainWindow::mouseMoveEvent(QMouseEvent* event) {
-    QScreen *screen = QApplication::screenAt(event->globalPos());
+void MainWindow::grab(QPoint globalPos) {
+    QScreen *screen = QApplication::screenAt(globalPos);
     if (screen) {
         int mw = magnifier->width();
         int mh = magnifier->height();
         int scrW = round(mw/scale);
         int scrH = round(mh/scale);
-        int cx = event->globalX();
-        int cy = event->globalY();
+        int cx = globalPos.x();
+        int cy = globalPos.y();
         int startX = cx-scrW/2;
         int startY = cy-scrH/2;
         startX = std::max(startX, 0);
@@ -90,6 +100,15 @@ void MainWindow::mouseMoveEvent(QMouseEvent* event) {
         magnifier->setPixmap(screenshot.scaled(mw, mh));
         magnifier->show();
     }
+}
+
+void MainWindow::mouseMoveEvent(QMouseEvent* event) {
+    auto pos = event->pos();
+    if (pos.x()>=0 && pos.x()<width() && pos.y()>=0 && pos.y()<height())
+        ;
+    else
+        globalPos = event->globalPos();
+    grab(globalPos);
 }
 
 int main(int argc, char *argv[]) {
