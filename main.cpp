@@ -10,6 +10,7 @@
 #include <QStatusBar>
 #include <cmath>
 #include <algorithm>
+#include "SliderWithTextBox.h"
 
 class Magnifier : public QLabel {
 Q_OBJECT
@@ -32,8 +33,18 @@ public:
     explicit MainWindow(QWidget* parent = nullptr)
             : QMainWindow(parent)
     {
+        QWidget *centralWidget = new QWidget(this);
+        auto *layout = new QHBoxLayout;
         magnifier = new Magnifier(this);
-        setCentralWidget(magnifier);
+        auto *sliderText = new SliderWithTextBox(this);
+        layout->addWidget(magnifier);
+        layout->addWidget(sliderText);
+        layout->setStretchFactor(magnifier, 1);
+        layout->setStretchFactor(sliderText, 0);
+        layout->setContentsMargins(0, 0, 0, 0);
+
+        centralWidget->setLayout(layout);
+        setCentralWidget(centralWidget);
         QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
         QAction *exitAction = fileMenu->addAction(tr("E&xit"), this, &QWidget::close);
         exitAction->setShortcuts(QKeySequence::Quit);
@@ -44,13 +55,17 @@ public:
 void Magnifier::mouseMoveEvent(QMouseEvent* event) {
     QPixmap pixmap = grab();
     QImage image = pixmap.toImage();
-    QColor color = image.pixelColor(event->x(), event->y());
-    int red = color.red();
-    int green = color.green();
-    int blue = color.blue();
-    QMainWindow* mwin = dynamic_cast<QMainWindow*>(parent());
-    QString s = QString("%1, %2, %3 ").arg(red).arg(green).arg(blue);
-    mwin->statusBar()->showMessage(s);
+    int x = event->x();
+    int y = event->y();
+    if (x>=0 && x<width() && y>=0 && y<height()) {
+        QColor color = image.pixelColor(x, event->y());
+        int red = color.red();
+        int green = color.green();
+        int blue = color.blue();
+        QMainWindow* mwin = dynamic_cast<QMainWindow*>(parent()->parent());
+        QString s = QString("%1, %2, %3 ").arg(red).arg(green).arg(blue);
+        mwin->statusBar()->showMessage(s);
+    }
     QLabel::mouseMoveEvent(event);
 }
 
