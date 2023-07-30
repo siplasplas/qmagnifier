@@ -22,7 +22,7 @@ public:
         layout->setContentsMargins(0, 0, 0, 0);
         connect(slider, &QSlider::valueChanged, this, &SliderWithTextBox::updateLineEdit);
 
-        slider->setRange(0, 32);
+        slider->setRange(8, 32);
         lineEdit->setReadOnly(true);
 
         setLayout(layout);
@@ -31,7 +31,7 @@ public:
 
 public slots:
     void updateLineEdit(int value) {
-        lineEdit->setText(QString::number(value));
+        lineEdit->setText(QString::number(int(value*value/50.0)));
     }
 
 private:
